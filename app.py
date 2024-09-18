@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
-from matplotlib.lines import Line2D
-import scipy.stats as stats
+import plotly.graph_objects as go
 
 # Cargar el dataset (ajusta la ruta según tu archivo CSV)
 @st.cache
 def cargar_datos():
-    df_FW = pd.read_csv('df_FW.csv')  # Usa la ruta completa del archivo
+    url = 'https://github.com/TomasCervio/Prueba/blob/main/df_FW.csv'  # Reemplaza con la URL directa de tu archivo
+    df_FW = pd.read_csv(url)
     return df_FW
 
 df_FW = cargar_datos()
@@ -31,13 +29,12 @@ def encontrar_jugadores_parecidos(jugador, df):
     
     return df_sorted
 
-# Función para crear el gráfico radial
+# Función para crear el gráfico radial usando Plotly
 def crear_grafico_radial(jugadores, df):
     columnas_percentiles = [col for col in df.columns if 'Percentil' in col]
     etiquetas = [col.replace('Percentil_', '') for col in columnas_percentiles]
     
-    fig, ax = plt.subplots(figsize=(10, 10), subplot_kw=dict(polar=True))
-    colores = ['blue', 'green']
+    fig = go.Figure()
     
     for i, jugador in enumerate(jugadores):
         if jugador in df['Player'].values:
@@ -48,20 +45,24 @@ def crear_grafico_radial(jugadores, df):
             datos_jugador = np.concatenate((datos_jugador, [datos_jugador[0]]))
             angulos = np.linspace(0, 2 * np.pi, len(datos_jugador) - 1, endpoint=False).tolist()
             angulos += angulos[:1]
-            ax.fill(angulos, datos_jugador, color=colores[i], alpha=0.25, label=jugador)
-            ax.plot(angulos, datos_jugador, color=colores[i], linewidth=2)
+            
+            fig.add_trace(go.Scatterpolar(
+                r=datos_jugador,
+                theta=angulos,
+                fill='toself',
+                name=jugador,
+                line=dict(color=['blue', 'green'][i])
+            ))
         else:
             st.write(f"Jugador '{jugador}' no encontrado en el dataframe.")
 
-    ax.set_yticklabels([])
-    ax.set_xticks(angulos[:-1])
-    ax.set_xticklabels(etiquetas_filtradas)
-    plt.title(f"Comparación de percentiles", size=15, y=1.1)
-
-    # Agregar leyenda personalizada fuera del gráfico
-    handles = [Line2D([0], [0], color='blue', lw=2), Line2D([0], [0], color='green', lw=2)]
-    labels = [f"{jugadores[0]}", f"{jugadores[1]}"]
-    plt.figlegend(handles, labels, loc='upper right', bbox_to_anchor=(1.2, 1.0))
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(visible=True),
+        ),
+        showlegend=True,
+        title="Comparación de percentiles"
+    )
     
     return fig
 
@@ -78,10 +79,11 @@ if jugador_a_comparar:
         # Mostrar el gráfico radial
         top_1_jugador = top_5_jugadores.iloc[0]
         fig = crear_grafico_radial([jugador_a_comparar, top_1_jugador], df_FW)
-        st.pyplot(fig)
+        st.plotly_chart(fig)
         
         st.write(f"El jugador más parecido a '{jugador_a_comparar}' es '{top_1_jugador}'.")
         st.write("Top 5 jugadores similares:")
         st.write(top_5_jugadores)
     else:
         st.write(f"No se encontraron jugadores similares a '{jugador_a_comparar}'.")
+
