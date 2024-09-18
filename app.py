@@ -62,16 +62,24 @@ def crear_grafico_radial(jugadores, df):
         if jugador in df['Player'].values:
             datos_jugador = df[df['Player'] == jugador][columnas_percentiles].values.flatten()
             indices_no_cero = np.where(datos_jugador != 0)[0]
+            
+            if len(indices_no_cero) == 0:
+                st.write(f"El jugador '{jugador}' no tiene datos válidos.")
+                return
+            
             datos_jugador = datos_jugador[indices_no_cero]
-            etiquetas_filtradas = [etiquetas[j] for j in indices_no_cero]
+            etiquetas_filtradas = [etiquetas[j] for j in indices_no_cero if j < len(etiquetas)]
+            
+            # Repetir el primer valor para cerrar el gráfico radial
             datos_jugador = np.concatenate((datos_jugador, [datos_jugador[0]]))
             angulos = np.linspace(0, 2 * np.pi, len(datos_jugador) - 1, endpoint=False).tolist()
             angulos += angulos[:1]
+            
             ax.fill(angulos, datos_jugador, color=colores[i], alpha=0.25, label=jugador)
             ax.plot(angulos, datos_jugador, color=colores[i], linewidth=2)
         else:
             st.write(f"Jugador '{jugador}' no encontrado en el dataframe.")
-
+    
     ax.set_yticklabels([])
     ax.set_xticks(angulos[:-1])
     ax.set_xticklabels(etiquetas_filtradas)
@@ -83,6 +91,7 @@ def crear_grafico_radial(jugadores, df):
     plt.figlegend(handles, labels, loc='upper right', bbox_to_anchor=(1.2, 1.0))
     
     return fig
+
 
 # Interfaz de usuario en Streamlit
 st.title("Comparador de Jugadores de Fútbol")
