@@ -6,8 +6,7 @@ import plotly.graph_objects as go
 # Cargar el dataset (ajusta la ruta según tu archivo CSV)
 @st.cache
 def cargar_datos():
-    url = 'https://github.com/TomasCervio/Prueba/blob/main/df_FW.csv'  # Reemplaza con la URL directa de tu archivo
-    df_FW = pd.read_csv(url)
+    df_FW = pd.read_csv('df_FW.csv')
     return df_FW
 
 df_FW = cargar_datos()
