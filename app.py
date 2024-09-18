@@ -9,7 +9,7 @@ import scipy.stats as stats
 # Cargar el dataset (ajusta la ruta según tu archivo CSV)
 @st.cache
 def cargar_datos():
-    df_FW = pd.read_csv(r'C:\Users\tomas\Downloads\df_FW.csv')  # Usa la ruta completa del archivo
+    df_FW = pd.read_csv('df_FW.csv')  # Usa la ruta completa del archivo
     return df_FW
 
 df_FW = cargar_datos()
