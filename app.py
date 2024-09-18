@@ -71,7 +71,7 @@ def main():
     df = cargar_datos()
 
     if df is not None:
-        jugador_a_comparar = st.text_input("Ingresa el nombre del jugador a comparar:", 'Marco Ruben')
+        jugador_a_comparar = st.text_input("Ingresa el nombre del jugador a comparar:")
         if st.button("Comparar"):
             encontrar_jugadores_parecidos(jugador_a_comparar, df)
 
